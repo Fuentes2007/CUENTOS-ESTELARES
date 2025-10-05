@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Las Tormentas del Sol - Cuento Completo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #storyContainer {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #canvas {
+            width: 100%;
+            max-width: 900px;
+            height: 500px;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scene {
+            width: 100%;
+            height: 100%;
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .scene.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .scene-title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px 30px;
+            border-radius: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 100;
+            border: 2px solid #764ba2;
+        }
+
+        .canva-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: white;
+        }
+
+        .sun {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, #FFD700, #FF8C00);
+            border-radius: 50%;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 60px #FFD700;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+
+        .earth {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #4A90E2, #50C878);
+            border-radius: 50%;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 30px rgba(74, 144, 226, 0.5);
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+        }
+
+        .flare {
+            position: absolute;
+            width: 80px;
+            height: 8px;
+            background: linear-gradient(90deg, #FF4500, transparent);
+            top: 50%;
+            left: 50%;
+            transform-origin: left center;
+            animation: shoot 2s infinite;
+        }
+
+        @keyframes shoot {
+            0% { transform: translateX(0) rotate(45deg); opacity: 1; }
+            100% { transform: translateX(300px) rotate(45deg); opacity: 0; }
+        }
+
+        .person {
+            position: absolute;
+            bottom: 50px;
+            left: 30%;
+            width: 80px;
+            height: 120px;
+        }
+
+        .person-head {
+            width: 40px;
+            height: 40px;
+            background: #FDBCB4;
+            border-radius: 50%;
+            margin: 0 auto;
+        }
+
+        .person-body {
+            width: 50px;
+            height: 60px;
+            background: #4A90E2;
+            margin: 5px auto;
+            border-radius: 10px;
+        }
+
+        .person-legs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .leg {
+            width: 15px;
+            height: 30px;
+            background: #2C3E50;
+            border-radius: 5px;
+        }
+
+        .satellite {
+            position: absolute;
+            width: 60px;
+            height: 40px;
+            background: #95A5A6;
+            border-radius: 10px;
+        }
+
+        .satellite::before, .satellite::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 5px;
+            background: #FFD700;
+            top: 50%;
+        }
+
+        .satellite::before { left: -30px; }
+        .satellite::after { right: -30px; }
+
+        .power-lines {
+            position: absolute;
+            bottom: 80px;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: #2C3E50;
+        }
+
+        .power-pole {
+            position: absolute;
+            width: 8px;
+            height: 60px;
+            background: #8B4513;
+            bottom: 0;
+        }
+
+        .spark {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #FFD700;
+            border-radius: 50%;
+            animation: sparkle 1s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        @keyframes wave {
+            0%, 100% { opacity: 0.5; transform: scaleY(1); }
+            50% { opacity: 0.8; transform: scaleY(1.2); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-5deg); }
+            75% { transform: translateX(5px) rotate(5deg); }
+        }
+
+        #narration {
+            width: 100%;
+            max-width: 900px;
+            padding: 25px 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            text-align: center;
+            font-size: 20px;
+            line-height: 1.6;
+            color: #2C3E50;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 3px solid #667eea;
+            min-height: 100px;
+        }
+
+        #narration p {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        #controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #audioBtn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            font-size: 20px;
+            padding: 15px 35px;
+        }
+
+        .page-indicator {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="storyContainer">
+        <div id="canvas">
+            <!-- PRIMER CUENTO: Las Tormentas del Sol (Escenas 1-6) -->
+            
+            <!-- Escena 1 -->
+            <div class="scene active" id="scene1">
+                <div class="scene-title">🌟 Conociendo a Sofía y el Sol 🌟</div>
+                <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #90EE90 100%);">
+                    <div class="cloud" style="width: 100px; height: 40px; top: 20%; left: 10%;"></div>
+                    <div class="cloud" style="width: 80px; height: 35px; top: 15%; right: 15%;"></div>
+                    <div class="sun"></div>
+                    <div class="earth" style="bottom: 200px;"></div>
+                    <div style="position: absolute; top: 30%; left: 20%; font-size: 24px;">🦅</div>
+                    <div style="position: absolute; bottom: 0; width: 100%; height: 150px; background: linear-gradient(180deg, transparent, #228B22);"></div>
+                    <div style="position: absolute; bottom: 20px; left: 15%; font-size: 30px;">🌻</div>
+                    <div style="position: absolute; bottom: 25px; left: 25%; font-size: 25px;">🌺</div>
+                    <div style="position: absolute; bottom: 50px; left: 10%; font-size: 60px;">🌳</div>
+                    <div class="person" style="left: 50%; transform: translateX(-50%);">
+                        <div class="person-head"></div>
+                        <div class="person-body"></div>
+                        <div class="person-legs">
+                            <div class="leg"></div>
+                            <div class="leg"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Escena 2 -->
+            <div class="scene" id="scene2">
+                <div class="scene-title">☀️ La Tormenta Solar ☀️</div>
+                <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #000428 0%, #004e92 100%);">
+                    <div style="position: absolute; top: 10%; left: 15%; font-size: 20px;">⭐</div>
+                    <div style="position: absolute; top: 20%; right: 20%; font-size: 16px;">✨</div>
+                    <div class="sun" style="box-shadow: 0 0 100px #FF4500;"></div>
+                    <div class="flare" style="background: linear-gradient(90deg, #FF0000, #FF4500, transparent); height: 12px;"></div>
+                    <div class="flare" style="animation-delay: 0.3s; transform: rotate(30deg); background: linear-gradient(90deg, #FF6347, #FF4500, transparent); height: 10px;"></div>
+                    <div class="earth" style="bottom: 150px;"></div>
+                </div>
+            </div>
+
+            <!-- Escena 3 -->
+            <div class="scene" id="scene3">
+                <div class="scene-title">🛡️ El Escudo Magnético 🛡️</div>
+                <div style="position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, #1a1a2e 0%, #16213e 100%);">
+                    <div class="earth" style="top: 50%; left: 50%; transform: translate(-50%, -50%) scale(2.2);"></div>
+                    <div style="position: absolute; width: 300px; height: 150px; border: 4px solid #00D9FF; border-bottom: none; border-radius: 150px 150px 0 0; top: 30%; left: 50%; transform: translateX(-50%); opacity: 0.6;"></div>
+                </div>
+            </div>
+
+            <!-- Escena 4 -->
+            <div class="scene" id="scene4">
+                <div class="scene-title">🌈 Las Auroras Boreales 🌈</div>
+                <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(180deg, #001a33 0%, #003d5c 40%, #004d73 100%);">
+                    <div style="position: absolute; width: 100%; height: 300px; top: 10%; background: linear-gradient(180deg, rgba(0, 255, 127, 0.4) 0%, rgba(0, 191, 255, 0.5) 50%, rgba(138, 43, 226, 0.5) 80%); animation: wave 3s infinite;"></div>
+                    <div style="position: absolute; bottom: 60px; left: 15%; font-size: 45px;">🌲</div>
+                    <div class="person" style="left: 50%; transform: translateX(-50%); bottom: 65px;">
+                        <div class="person-head"></div>
+                        <div class="person-body"></div>
+                        <div class="person-legs">
+                            <div class="leg"></div>
+                            <div class="leg"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Escena 5 -->
+            <div class="scene" id="scene5">
+                <div class="scene-title">⚡ Efectos en la Tecnología ⚡</div>
+                <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(180deg, #FFB347 0%, #87CEEB 40%, #90EE90 100%);">
+                    <div class="satellite" style="top: 80px; right: 120px;"></div>
+                    <div style="position: absolute; top: 90px; right: 120px; font-size: 25px; animation: blink 1s infinite;">⚠️</div>
+                    <div class="power-lines">
+                        <div class="power-pole" style="left: 15%;"></div>
+                        <div class="power-pole" style="left: 55%;"></div>
+                        <div class="spark" style="left: 25%; top: -8px;"></div>
+                    </div>
+                    <div style="position: absolute; bottom: 100px; left: 27%; font-size: 30px; animation: shake 0.5s infinite;">📱</div>
+                </div>
+            </div>
+
+            <!-- Escena 6 -->
+            <div class="scene" id="scene6">
+                <div class="scene-title">🌟 ¡Ciencia y Protección! 🌟</div>
+                <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                    <div class="sun" style="position: relative; top: 0; left: 0; transform: none; margin-bottom: 30px; width: 120px; height: 120px;"></div>
+                    <div class="earth" style="position: relative; bottom: 0; left: 0; transform: none;"></div>
+                    <h1 style="color: white; font-size: 36px; margin-top: 30px; text-shadow: 3px 3px 6px rgba(0,0,0,0.5);">¡El Sol y la Tierra en Armonía!</h1>
+                    <div style="font-size: 50px; margin-top: 15px;">💚🌍☀️</div>
+                </div>
+            </div>
+
+            <!-- SEGUNDO CUENTO: Solina (Escenas 7-15) - IMÁGENES DE CANVA -->
+            
+            <!-- Escena 7: Portada -->
+            <div class="scene" id="scene7">
+                <img src="solina_portada.png" alt="Portada Solina" class="canva-image">
+            </div>
+
+            <!-- Escena 8: Solina feliz -->
+            <div class="scene" id="scene8">
+                <img src="solina_pagina1.png" alt="Solina feliz" class="canva-image">
+            </div>
+
+            <!-- Escena 9: Solina preocupada -->
+            <div class="scene" id="scene9">
+                <img src="solina_pagina2.png" alt="Solina preocupada" class="canva-image">
+            </div>
+
+            <!-- Escena 10: Erupción solar -->
+            <div class="scene" id="scene10">
+                <img src="solina_pagina3.png" alt="Erupción solar" class="canva-image">
+            </div>
+
+            <!-- Escena 11: Solina mira la Tierra -->
+            <div class="scene" id="scene11">
+                <img src="solina_pagina4.png" alt="Solina y la Tierra" class="canva-image">
+            </div>
+
+            <!-- Escena 12: Don Lucho -->
+            <div class="scene" id="scene12">
+                <img src="solina_pagina5.png" alt="Don Lucho" class="canva-image">
+            </div>
+
+            <!-- Escena 13: Capitana Jimena -->
+            <div class="scene" id="scene13">
+                <img src="solina_pagina6.png" alt="Capitana Jimena" class="canva-image">
+            </div>
+
+            <!-- Escena 14: Auroras desde Bolivia -->
+            <div class="scene" id="scene14">
+                <img src="solina_pagina9.png" alt="Auroras" class="canva-image">
+            </div>
+
+            <!-- Escena 15: Final -->
+            <div class="scene" id="scene15">
+                <img src="solina_pagina11.png" alt="Final" class="canva-image">
+            </div>
+        </div>
+
+        <div id="narration">
+            <p id="narrationText">¡Hola! Soy Sofía y te voy a contar la increíble historia del Sol y la Tierra. ¿Sabías que el Sol nos envía regalos especiales? ¡Acompáñame en esta aventura!</p>
+        </div>
+
+        <div id="controls">
+            <button id="prevBtn" onclick="previousScene()" disabled>⬅ Anterior</button>
+            <div class="page-indicator">
+                <span id="pageNumber">Página 1 de 15</span>
+            </div>
+            <button id="nextBtn" onclick="nextScene()">Siguiente ➡</button>
+            <button id="audioBtn" onclick="toggleAudio()">🔊 Reproducir Audio</button>
+        </div>
+    </div>
+
+    <script>
+        let currentScene = 1;
+        const totalScenes = 15;
+        let audioEnabled = true;
+        let currentAudio = null;
+
+        const narrations = [
+            // Primer cuento (1-6)
+            "¡Hola! Soy Sofía y te voy a contar la increíble historia del Sol y la Tierra. ¿Sabías que el Sol nos envía regalos especiales? ¡Acompáñame en esta aventura!",
+            "A veces, el Sol tiene días muy activos y lanza partículas muy rápidas al espacio. ¡Es como si estornudara! Esto se llama tormenta solar o erupción solar. Las partículas viajan a millones de kilómetros por hora hacia nuestro planeta.",
+            "¡Pero no te preocupes! La Tierra tiene un escudo mágico invisible llamado campo magnético. Es como un súper escudo protector que nos cuida de las partículas del Sol. Sin él, no podríamos vivir aquí.",
+            "Cuando las partículas del Sol chocan con nuestro escudo magnético, ¡pasan cosas mágicas! Se crean luces de colores en el cielo llamadas auroras boreales. Son como fuegos artificiales naturales de color verde, azul y morado. ¡Son bellísimas!",
+            "Las tormentas solares muy fuertes pueden afectar nuestra tecnología. Pueden interferir con los satélites en el espacio, causar problemas en las redes eléctricas y afectar las comunicaciones. Por eso los científicos observan el Sol constantemente para avisarnos.",
+            "Ahora ya sabes que el Sol y la Tierra tienen una relación especial. Las tormentas solares son parte natural de nuestro universo. Los científicos estudian el Sol todos los días para protegernos y entender mejor nuestra estrella. ¡La ciencia es fascinante!",
+            
+            // Segundo cuento: Solina (7-15)
+            "Había una vez, en un rincón brillante del universo, una estrella alegre llamada Solina. Cada mañana se estiraba con un bostezo de fuego dorado y lanzaba su luz a todos los planetas del Sistema Solar.",
+            "Buenos días, mis planetitas, decía con voz cálida. Pero un día, algo diferente comenzó a suceder en su interior. Sintió un cosquilleo eléctrico, una energía acumulada que crecía y crecía, hasta que...",
+            "¡BOOM! Una gran llamarada solar salió disparada de su superficie, acompañada de una eyección de masa coronal que parecía un dragón de fuego viajando al espacio.",
+            "Oh, cielos, dijo Solina preocupada. Espero no causar problemas allá abajo. Mientras el dragón de fuego viajaba rumbo a la Tierra, los humanos aún no sabían lo que estaba por venir.",
+            "En la Tierra, en una granja de Santa Cruz, Don Lucho, un agricultor, miraba su pantalla del clima. ¿Qué raro! El satélite dice que no lloverá, pero el cielo se ve pesado, comentó rascándose la cabeza.",
+            "Lo que no sabía era que el satélite meteorológico había sido afectado por la tormenta solar de Solina. En el aire, la capitana Jimena, una piloto boliviana, escuchó interferencias en su radio.",
+            "Todos en la Tierra empezaron a notar algo extraño: los GPS fallaban, los celulares se quedaban sin señal, y en el cielo, aparecieron cortinas de luces danzantes, auroras tan brillantes que se podían ver incluso desde Bolivia.",
+            "Al final, desde lo alto, Solina suspiró aliviada. Menos mal que los terrícolas saben cuidarse. No fue mi intención asustarlos, solo necesitaba liberar un poco de energía, dijo riendo suavemente. ¡FIN!"
+        ];
+
+        function updateScene() {
+            document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+            document.getElementById('scene' + currentScene).classList.add('active');
+            document.getElementById('narrationText').textContent = narrations[currentScene - 1];
+            document.getElementById('pageNumber').textContent = `Página ${currentScene} de ${totalScenes}`;
+            
+            document.getElementById('prevBtn').disabled = currentScene === 1;
+            document.getElementById('nextBtn').disabled = currentScene === totalScenes;
+            
+            if (audioEnabled) {
+                speak(narrations[currentScene - 1]);
+            }
+        }
+
+        function nextScene() {
+            if (currentScene < totalScenes) {
+                currentScene++;
+                updateScene();
+            }
+        }
+
+        function previousScene() {
+            if (currentScene > 1) {
+                currentScene--;
+                updateScene();
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('audioBtn');
+            btn.textContent = audioEnabled ? '🔊 Audio ON' : '🔇 Audio OFF';
+            btn.style.background = audioEnabled ? 
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' : 
+                'linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%)';
+            
+            if (audioEnabled) {
+                speak(narrations[currentScene - 1]);
+            } else {
+                speechSynthesis.cancel();
+            }
+        }
+
+        function speak(text) {
+            speechSynthesis.cancel();
+            
+            currentAudio = new SpeechSynthesisUtterance(text);
+            currentAudio.lang = 'es-ES';
+            currentAudio.rate = 0.9;
+            currentAudio.pitch = 1.1;
+            speechSynthesis.speak(currentAudio);
+        }
+
+        setTimeout(() => {
+            if (audioEnabled) {
+                speak(narrations[0]);
+            }
+        }, 1000);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextScene();
+            if (e.key === 'ArrowLeft') previousScene();
+        });
+    </script>
+</body>
+</html>
